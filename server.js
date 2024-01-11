@@ -24,7 +24,7 @@ const db = new sqlite3.Database("./database/montresmyDB.db", (err) => {
 // Define the API endpoints
 // Redirect the home
 app.get("/", (req, res) => {
-  res.redirect("/montres");
+  res.redirect("/");
 });
 
 // Define a route for help and contact

@@ -14,7 +14,8 @@ CREATE TABLE Montres (
     BoitierID INTEGER,
     PierreID INTEGER,
     BraceletID INTEGER,
-    Prix DECIMAL(10, 2) NOT NULL
+    Prix DECIMAL(10, 2) NOT NULL,
+    FOREIGN KEY (UserID) REFERENCES user(UserID)
     
 );
 -- Table Boitier
