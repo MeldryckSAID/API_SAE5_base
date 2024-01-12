@@ -80,8 +80,7 @@ app.get("/stones", (req, res) => {
     res.json(rows); // Return the list of montres as JSON response
   });
 });
-
-
+// -------------ByID---------------------------//
 //informations par user
 app.get("/user/:UserID", (req, res) => {
   const { UserID } = req.params;
@@ -117,7 +116,10 @@ app.get("/montre/:MontreID", (req, res) => {
       UserID,
       BoitierID,
       PierreID,
-      BraceletID
+      BraceletID,
+      TextureBraceletID,
+      TextureBoitierID
+
       FROM Montres
       WHERE MontreID = ?;`,
     [MontreID],
@@ -132,7 +134,7 @@ app.get("/montre/:MontreID", (req, res) => {
   );
 });
 
-//informations par confi
+// -------------inscription---------------------------//
 
 //inscription user
 
@@ -158,9 +160,8 @@ app.post("/inscription", (req, res) => {
     }
   );
 });
-
+// -------------connexion---------------------------//
 //connexion user
-
 app.post("/login", async (req, res) => {
   const { mail, Password } = req.body;
 
@@ -192,7 +193,14 @@ app.post("/login", async (req, res) => {
 // -------------post---------------------------//
 // montre
 app.post("/montres/add", (req, res) => {
-  const { NomMontres, UserID, Prix } = req.body;
+  const {
+    NomMontres,
+    BoitierID,
+    PierreID,
+    BraceletID,
+    TextureBoitierID,
+    TextureBraceletID,
+  } = req.body;
 
   if (!NomMontres) {
     res.status(400).json({ error: "Nom de la montre requis" });
@@ -200,8 +208,15 @@ app.post("/montres/add", (req, res) => {
   }
 
   db.run(
-    "INSERT INTO Montres (NomMontres, UserID, Prix, BoitierID, PierreID,BraceletID ) VALUES ?,?,?,?,?)",
-    [NomMontres, UserID, Prix],
+    "INSERT INTO Montres (NomMontres,BoitierID, PierreID, BraceletID, TextureBoitierID, TextureBraceletID ) VALUES (?,?,?,?,?,?)",
+    [
+      NomMontres,
+      BoitierID,
+      PierreID,
+      BraceletID,
+      TextureBoitierID,
+      TextureBraceletID,
+    ],
     function (err) {
       if (err) {
         console.error("Error adding Watches:", err.message);
@@ -209,11 +224,18 @@ app.post("/montres/add", (req, res) => {
         return;
       }
 
-      res.json({ MontreID: this.lastID, NomMontres, UserID, Prix });
+      res.json({
+        MontreID: this.lastID,
+        NomMontres,
+        BoitierID,
+        PierreID,
+        BraceletID,
+        TextureBoitierID,
+        TextureBraceletID,
+      });
     }
   );
 });
-
 // pierre
 app.post("/stones/add", (req, res) => {
   const { NomPierre, PierreDescription, Prix } = req.body;
@@ -244,7 +266,7 @@ app.post("/stones/add", (req, res) => {
 });
 // Bracelet
 app.post("/bracelets/add", (req, res) => {
-  const { NomBracelet, Prix } = req.body;
+  const { NomBracelet, Prix, TextureBraceletID } = req.body;
 
   if (!NomBracelet) {
     res.status(400).json({ error: "Nom du bracelet requis" });
@@ -252,8 +274,8 @@ app.post("/bracelets/add", (req, res) => {
   }
 
   db.run(
-    "INSERT INTO Bracelet (NomBracelet,Prix) VALUES ( ?,?)",
-    [NomBracelet, Prix],
+    "INSERT INTO Bracelet (NomBracelet,Prix) VALUES ( ?,?,?)",
+    [NomBracelet, Prix, TextureBraceletID],
     function (err) {
       if (err) {
         console.error("Error adding Bracelet:", err.message);
@@ -264,12 +286,93 @@ app.post("/bracelets/add", (req, res) => {
         BraceletID: this.lastID,
         NomBracelet,
         Prix,
+        TextureBraceletID,
       });
     }
   );
 });
-// configurations
-app.post("/newmontre", (req, res) => {
+// texture Bracelet
+app.post("/TextureBracelet/add", (req, res) => {
+  const { NomTexture, Prix, TextureDescription } = req.body;
+
+  if (!NomTexture) {
+    res.status(400).json({ error: "Nom du Boitier requis" });
+    return;
+  }
+
+  db.run(
+    "INSERT INTO TextureBracelet (NomTexture,Prix,TextureDescription) VALUES ( ?,?,?)",
+    [NomTexture, Prix, TextureBoitierID],
+    function (err) {
+      if (err) {
+        console.error("Error adding Boitier:", err.message);
+        res.status(500).json({ error: "Internal server error" });
+        return;
+      }
+      res.json({
+        BraceletID: this.lastID,
+        NomTexture,
+        Prix,
+        TextureDescription,
+      });
+    }
+  );
+});
+//  boitier
+app.post("/boitier/add", (req, res) => {
+  const { NomBoitier, Prix, TextureBoitierID } = req.body;
+
+  if (!NomBoitier) {
+    res.status(400).json({ error: "Nom du Boitier requis" });
+    return;
+  }
+
+  db.run(
+    "INSERT INTO Boitier (NomBoitier, Prix, TextureBoitierID) VALUES ( ?,?,?)",
+    [NomBoitier, Prix, TextureBoitierID],
+    function (err) {
+      if (err) {
+        console.error("Error adding Boitier:", err.message);
+        res.status(500).json({ error: "Internal server error" });
+        return;
+      }
+      res.json({
+        BraceletID: this.lastID,
+        NomBracelet,
+        Prix,
+        TextureBoitierID,
+      });
+    }
+  );
+});
+// texture boitier
+app.post("/TextureBoitier/add", (req, res) => {
+  const { NomTexture, Prix } = req.body;
+
+  if (!NomTexture) {
+    res.status(400).json({ error: "Nom du Boitier requis" });
+    return;
+  }
+
+  db.run(
+    "INSERT INTO TextureBracelet (NomTexture,Prix,) VALUES ( ?,?)",
+    [NomTexture, Prix],
+    function (err) {
+      if (err) {
+        console.error("Error adding Boitier:", err.message);
+        res.status(500).json({ error: "Internal server error" });
+        return;
+      }
+      res.json({
+        BraceletID: this.lastID,
+        NomTexture,
+        Prix,
+      });
+    }
+  );
+});
+// ajout montre
+app.post("/montre/add", (req, res) => {
   const { MontreID, UserID, BoitierID, PierreID, BraceletID } = req.body;
 
   if (!MontreID) {
@@ -298,6 +401,7 @@ app.post("/newmontre", (req, res) => {
   );
 });
 
+// -------------app.put  et undapte into ---------------------------//
 // Start the server
 
 app.listen(port, () => {

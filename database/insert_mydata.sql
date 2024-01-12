@@ -55,7 +55,7 @@ VALUES
     ('Tissus', 'cousus main', 400);
 
 -- Insertion de données dans la table Panier
-INSERT INTO cart (UserID, MontreID, Quantity, PrixTotal)
+INSERT INTO cart (UserID, MontreID )
 VALUES 
-    (1, 1, 2, 52),
-    (1, 2, 1, 800);
+    (1, 1),
+    (1, 2);

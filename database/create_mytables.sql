@@ -71,8 +71,6 @@ CREATE TABLE cart (
     PanierID INTEGER PRIMARY KEY,
     UserID INTEGER,
     MontreID INTEGER,
-    Quantity INTEGER,
-    PrixTotal DECIMAL(10, 2) NOT NULL,
     FOREIGN KEY (UserID) REFERENCES user(UserID),
     FOREIGN KEY (MontreID) REFERENCES Montres(MontreID) 
 );
