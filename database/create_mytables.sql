@@ -14,10 +14,17 @@ CREATE TABLE Montres (
     BoitierID INTEGER,
     PierreID INTEGER,
     BraceletID INTEGER,
-    Prix DECIMAL(10, 2) NOT NULL,
-    FOREIGN KEY (UserID) REFERENCES user(UserID)
+    TextureBoitierID INTEGER,
+    TextureBraceletID INTEGER,
+    FOREIGN KEY (UserID) REFERENCES user(UserID),
+    FOREIGN KEY (PierreID) REFERENCES Pierre(PierreID),
+    FOREIGN KEY (BraceletID) REFERENCES Bracelet(BraceletID),
+    FOREIGN KEY (TextureBoitierID) REFERENCES TextureBoitier(TextureBoitierID),
+    FOREIGN KEY (TextureBraceletID) REFERENCES TextureBracelet(TextureBraceletID),
+    FOREIGN KEY (BoitierID) REFERENCES Boitier(BoitierID)
     
 );
+
 -- Table Boitier
 CREATE TABLE Boitier (
     BoitierID INTEGER PRIMARY KEY,
@@ -25,13 +32,11 @@ CREATE TABLE Boitier (
     Prix DECIMAL(10, 2) NOT NULL,
     TextureBoitierID INTEGER,
     FOREIGN KEY (TextureBoitierID) REFERENCES TextureBoitier(TextureBoitierID)
-  
 );
 -- Table TextureBoitier
 CREATE TABLE TextureBoitier (
     TextureBoitierID INTEGER PRIMARY KEY,
     NomTexture VARCHAR(255) UNIQUE NOT NULL,
-    Chemin VARCHAR(255) NOT NULL,
     Prix DECIMAL(10, 2) NOT NULL
     
 );
@@ -47,9 +52,8 @@ CREATE TABLE Pierres (
 CREATE TABLE Bracelet (
     BraceletID INTEGER PRIMARY KEY,
     NomBracelet VARCHAR(255) UNIQUE NOT NULL,
-    Prix DECIMAL(10, 2) NOT NULL,
-    TextureBraceletID INTEGER,
-    FOREIGN KEY (TextureBraceletID) REFERENCES TextureBracelet(TextureBraceletID)
+    Prix DECIMAL(10, 2) NOT NULL
+   
 
 );
 
@@ -58,31 +62,17 @@ CREATE TABLE TextureBracelet (
     TextureBraceletID INTEGER PRIMARY KEY,
     NomTexture VARCHAR(255) UNIQUE NOT NULL,
     TextureDescription VARCHAR(255) NOT NULL,
-    Prix DECIMAL(10, 2) NOT NULL,
-    Chemin VARCHAR(255) NOT NULL
-);
-
-CREATE TABLE Configurations (
-    ID INTEGER PRIMARY KEY,
-    MontreID INTEGER,
-    UserID INTEGER,
-    BoitierID INTEGER,
-    PierreID INTEGER,
-    BraceletID INTEGER,
-    FOREIGN KEY (MontreID) REFERENCES Montres(MontreID),
-    FOREIGN KEY (UserID) REFERENCES user(UserID),
-    FOREIGN KEY (BoitierID) REFERENCES Boitier(BoitierID),
-    FOREIGN KEY (PierreID) REFERENCES Pierres(ID),
-    FOREIGN KEY (BraceletID) REFERENCES Bracelet(ID)
+    Prix DECIMAL(10, 2) NOT NULL
+   
 );
 
 -- Table Panier
 CREATE TABLE cart (
     PanierID INTEGER PRIMARY KEY,
     UserID INTEGER,
-    ConfigurationID INTEGER,
+    MontreID INTEGER,
     Quantity INTEGER,
     PrixTotal DECIMAL(10, 2) NOT NULL,
     FOREIGN KEY (UserID) REFERENCES user(UserID),
-    FOREIGN KEY (ConfigurationID) REFERENCES Configurations(ID) -- Modifié pour référencer ConfigurationID
+    FOREIGN KEY (MontreID) REFERENCES Montres(MontreID) 
 );

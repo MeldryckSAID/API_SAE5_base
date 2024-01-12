@@ -1,7 +1,7 @@
 const express = require("express");
 const sqlite3 = require("sqlite3");
 const bcrypt = require("bcrypt");
-const bodyParser = require("body-parser"); 
+const bodyParser = require("body-parser");
 
 const cors = require("cors");
 
@@ -86,22 +86,64 @@ app.get("/stones", (req, res) => {
     res.json(rows); // Return the list of montres as JSON response
   });
 });
-app.get("/config", (req, res) => {
-  db.all("SELECT * FROM Configurations", (err, rows) => {
-    if (err) {
-      console.error("Error fetching cart:", err.message);
-      res.status(500).json({ error: "Internal server error" });
-      return;
+
+
+//informations par user
+app.get("/user/:UserID", (req, res) => {
+  const { UserID } = req.params;
+
+  db.all(
+    `SELECT
+      UserID,
+      name,
+      mail,
+      surname
+
+      FROM user
+      WHERE UserID = ?;`,
+    [UserID],
+    (err, rows) => {
+      if (err) {
+        console.error("Error fetching watches:", err.message);
+        res.status(500).json({ error: "Internal server error" });
+        return;
+      }
+      res.json(rows); // Return the list of recipes as JSON response
     }
-    res.json(rows); // Return the list of montres as JSON response
-  });
+  );
 });
+//informations par montre
+app.get("/montre/:MontreID", (req, res) => {
+  const { MontreID } = req.params;
+
+  db.all(
+    `SELECT
+      MontreID,
+      NomMontres,
+      UserID,
+      BoitierID,
+      PierreID,
+      BraceletID
+      FROM Montres
+      WHERE MontreID = ?;`,
+    [MontreID],
+    (err, rows) => {
+      if (err) {
+        console.error("Error fetching watches:", err.message);
+        res.status(500).json({ error: "Internal server error" });
+        return;
+      }
+      res.json(rows); // Return the list of recipes as JSON response
+    }
+  );
+});
+
+//informations par confi
 
 //inscription user
 
-
 app.post("/inscription", (req, res) => {
-  const { name, Password, surname,mail } = req.body;
+  const { name, Password, surname, mail } = req.body;
 
   if (!mail) {
     res.status(400).json({ error: "mail requis" });
@@ -123,39 +165,37 @@ app.post("/inscription", (req, res) => {
   );
 });
 
-//login user
+//connexion user
 
-app.post("/login", (req, res) => {
+app.post("/login", async (req, res) => {
   const { mail, Password } = req.body;
 
-  if (!mail || !Password) {
-    res.status(400).json({ error: "Email and Password are required" });
-    return;
-  }
+  // Récupération de l'utilisateur depuis la base de données
+  db.get(
+    `
+        SELECT *
+        FROM user
+        WHERE mail = ?
+        AND Password = ?`,
+    [mail, Password],
+    async (err, user) => {
+      if (err) {
+        res.status(500).json({ error: "Erreur interne du serveur" });
+        return;
+      }
 
-  db.get("SELECT * FROM user WHERE mail = ?", [mail], (err, user) => {
-    if (err) {
-      console.error("Error fetching user:", err.message);
-      res.status(500).json({ error: "Internal server error" });
-      return;
-    }
+      if (!user) {
+        res.status(401).json({ error: "Pseudo ou Mot de passe incorrect" });
+        return;
+      }
 
-    if (user) {
-      bcrypt.compare(Password, user.Password, (err, result) => {
-        if (result) {
-          res.json({ message: "Login successful", UserID: user.UserID });
-        } else {
-          res.status(401).json({ error: "Invalid credentials" });
-        }
-      });
-    } else {
-      res.status(404).json({ error: "User not found" });
+      // Envoi du token en réponse
+      res.json({ token: user.UserID });
     }
-  });
+  );
 });
 
 // -------------post---------------------------//
-
 // montre
 app.post("/montres/add", (req, res) => {
   const { NomMontres, UserID, Prix } = req.body;
@@ -166,7 +206,7 @@ app.post("/montres/add", (req, res) => {
   }
 
   db.run(
-    "INSERT INTO Montres (NomMontres, UserID, Prix ) VALUES (?, ?,?)",
+    "INSERT INTO Montres (NomMontres, UserID, Prix, BoitierID, PierreID,BraceletID ) VALUES ?,?,?,?,?)",
     [NomMontres, UserID, Prix],
     function (err) {
       if (err) {
@@ -235,8 +275,8 @@ app.post("/bracelets/add", (req, res) => {
   );
 });
 // configurations
-app.post("/configurations", (req, res) => {
-  const {  MontreID, UserID, BoitierID, PierreID, BraceletID } = req.body;
+app.post("/newmontre", (req, res) => {
+  const { MontreID, UserID, BoitierID, PierreID, BraceletID } = req.body;
 
   if (!MontreID) {
     res.status(400).json({ error: "Num configurations requis" });
@@ -263,7 +303,6 @@ app.post("/configurations", (req, res) => {
     }
   );
 });
-// -------------inscription---------------------------//
 
 // Start the server
 
