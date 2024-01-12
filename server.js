@@ -27,17 +27,11 @@ app.get("/", (req, res) => {
   res.redirect("/");
 });
 
-// Define a route for help and contact
-app.get("/help-contact", (req, res) => {
-  // The HTML file will be served automatically from the 'public' directory
-  res.sendFile(__dirname + "/help-contact.html");
-});
-
 // -------------GET---------------------------//
 
 //Get all
 app.get("/montres", (req, res) => {
-  db.all("SELECT * FROM montres", (err, rows) => {
+  db.all("SELECT * FROM Montres", (err, rows) => {
     if (err) {
       console.error("Error fetching montres:", err.message);
       res.status(500).json({ error: "Internal server error" });
@@ -67,7 +61,7 @@ app.get("/boitier", (req, res) => {
   });
 });
 app.get("/cart", (req, res) => {
-  db.all("SELECT * FROM Cart", (err, rows) => {
+  db.all("SELECT * FROM cart", (err, rows) => {
     if (err) {
       console.error("Error fetching cart:", err.message);
       res.status(500).json({ error: "Internal server error" });
