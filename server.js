@@ -129,6 +129,27 @@ app.get("/user/:UserID", (req, res) => {
     }
   );
 });
+//informations par cart
+app.get("/cart/:cartID", (req, res) => {
+  const { cartID } = req.params;
+
+  db.all(
+    `SELECT
+      UserID,
+      FROM cart
+      WHERE cartID = ?;`,
+    [cartID],
+    (err, rows) => {
+      if (err) {
+        console.error("Error fetching watches:", err.message);
+        res.status(500).json({ error: "Internal server error" });
+        return;
+      }
+      res.json(rows); // Return the list of recipes as JSON response
+    }
+  );
+});
+
 //informations par montre
 app.get("/montre/:MontreID", (req, res) => {
   const { MontreID } = req.params;
@@ -409,7 +430,7 @@ app.post("/TextureBoitier/add", (req, res) => {
   );
 });
 
-app.post("/montre/cart", (req, res) => {
+app.post("/montre/cart/add", (req, res) => {
   const { UserID, MontreID } = req.body;
 
   if (!UserID) {
