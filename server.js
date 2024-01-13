@@ -168,7 +168,6 @@ app.get("/montre/:MontreID", (req, res) => {
   );
 });
 
-
 // -------------inscription---------------------------//
 
 //inscription user
@@ -228,7 +227,7 @@ app.post("/login", async (req, res) => {
 // -------------post---------------------------//
 // montre
 app.post("/montres/add", (req, res) => {
-  const { 
+  const {
     UserID,
     NomMontres,
     BoitierID,
@@ -245,7 +244,8 @@ app.post("/montres/add", (req, res) => {
 
   db.run(
     "INSERT INTO Montres ( UserID,NomMontres,BoitierID, PierreID, BraceletID, TextureBoitierID, TextureBraceletID ) VALUES (?,?,?,?,?,?,?)",
-    [ UserID,
+    [
+      UserID,
       NomMontres,
       BoitierID,
       PierreID,
@@ -262,7 +262,7 @@ app.post("/montres/add", (req, res) => {
 
       res.json({
         MontreID: this.lastID,
-         UserID,
+        UserID,
         NomMontres,
         BoitierID,
         PierreID,
@@ -409,11 +409,35 @@ app.post("/TextureBoitier/add", (req, res) => {
   );
 });
 
+app.post("/montre/cart", (req, res) => {
+  const { UserID, MontreID } = req.body;
+
+  if (!UserID) {
+    res.status(400).json({ error: "Nom du Boitier requis" });
+    return;
+  }
+
+  db.run(
+    "INSERT INTO cart (UserID, MontreID) VALUES ( ?,?)",
+    [UserID, MontreID],
+    function (err) {
+      if (err) {
+        console.error("Error adding to cart:", err.message);
+        res.status(500).json({ error: "Internal server error" });
+        return;
+      }
+      res.json({
+        cart: this.lastID,
+        UserID,
+        MontreID,
+      });
+    }
+  );
+});
 
 // -------------put ---------------------------//
 
-
-// modification montre 
+// modification montre
 app.put("/montre/:MontreID/update", (req, res) => {
   const { MontreID } = req.params;
   const {
@@ -468,7 +492,7 @@ app.put("/montre/:MontreID/update", (req, res) => {
 // modification montre by id avec  id user (hypotese)
 app.put("/montre/user/:MontreID/update", (req, res) => {
   const { MontreID } = req.params;
-  const UserID = req.user.UserID; 
+  const UserID = req.user.UserID;
   const {
     NomMontres,
     BoitierID,
@@ -531,11 +555,9 @@ app.put("/montre/user/:MontreID/update", (req, res) => {
           }
         );
       } else {
-        res
-          .status(404)
-          .json({
-            message: "Montre non trouvée ou n'appartient pas à l'utilisateur",
-          });
+        res.status(404).json({
+          message: "Montre non trouvée ou n'appartient pas à l'utilisateur",
+        });
       }
     }
   );
@@ -543,8 +565,34 @@ app.put("/montre/user/:MontreID/update", (req, res) => {
 
 // -------------Delete----------------//
 
+//supression de montre
+app.delete("delete/montre/:MontreID", (req, res) => {
+  const { MontreID } = req.params;
+
+  db.run("DELETE FROM Montres WHERE MontreID = ?", [MontreID], (err) => {
+    if (err) {
+      console.error("Error deleting montre:", err.message);
+      res.status(500).json({ error: "Internal server error" });
+      return;
+    }
+    res.json({ message: `Montre with MontreID ${MontreID} has been deleted.` });
+  });
+});
 
 
+//supression de cart
+app.delete("delete/cart/:cartID", (req, res) => {
+  const { cartID } = req.params;
+
+  db.run("DELETE FROM cart WHERE cartID = ?", [cartID], (err) => {
+    if (err) {
+      console.error("Error deleting cart:", err.message);
+      res.status(500).json({ error: "Internal server error" });
+      return;
+    }
+    res.json({ message: `Montre with cartID ${cartID} has been deleted.` });
+  });
+});
 
 // Start the server
 

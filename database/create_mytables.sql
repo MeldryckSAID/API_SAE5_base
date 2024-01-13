@@ -68,7 +68,7 @@ CREATE TABLE TextureBracelet (
 
 -- Table Panier
 CREATE TABLE cart (
-    PanierID INTEGER PRIMARY KEY,
+    cartID INTEGER PRIMARY KEY,
     UserID INTEGER,
     MontreID INTEGER,
     FOREIGN KEY (UserID) REFERENCES user(UserID),
