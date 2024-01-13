@@ -245,6 +245,14 @@ app.post("/login", async (req, res) => {
   );
 });
 
+// -------------déconnexion---------------------------//
+app.post("/logout", (req, res) => {
+ 
+  res.clearCookie("token"); 
+
+  res.status(200).json({ message: "Déconnexion réussie" });
+});
+
 // -------------post---------------------------//
 // montre
 app.post("/montres/add", (req, res) => {
