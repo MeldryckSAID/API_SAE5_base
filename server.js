@@ -193,7 +193,8 @@ app.post("/login", async (req, res) => {
 // -------------post---------------------------//
 // montre
 app.post("/montres/add", (req, res) => {
-  const {
+  const { 
+    UserID,
     NomMontres,
     BoitierID,
     PierreID,
@@ -208,8 +209,8 @@ app.post("/montres/add", (req, res) => {
   }
 
   db.run(
-    "INSERT INTO Montres (NomMontres,BoitierID, PierreID, BraceletID, TextureBoitierID, TextureBraceletID ) VALUES (?,?,?,?,?,?)",
-    [
+    "INSERT INTO Montres ( UserID,NomMontres,BoitierID, PierreID, BraceletID, TextureBoitierID, TextureBraceletID ) VALUES (?,?,?,?,?,?,?)",
+    [ UserID,
       NomMontres,
       BoitierID,
       PierreID,
@@ -226,6 +227,7 @@ app.post("/montres/add", (req, res) => {
 
       res.json({
         MontreID: this.lastID,
+         UserID,
         NomMontres,
         BoitierID,
         PierreID,
@@ -371,37 +373,141 @@ app.post("/TextureBoitier/add", (req, res) => {
     }
   );
 });
-// ajout montre
-app.post("/montre/add", (req, res) => {
-  const { MontreID, UserID, BoitierID, PierreID, BraceletID } = req.body;
 
-  if (!MontreID) {
-    res.status(400).json({ error: "Num configurations requis" });
+
+// -------------app.put  et undapte into ---------------------------//
+
+
+// modification montre 
+app.put("/montre/:MontreID/update", (req, res) => {
+  const { MontreID } = req.params;
+  const {
+    NomMontres,
+    BoitierID,
+    PierreID,
+    BraceletID,
+    TextureBoitierID,
+    TextureBraceletID,
+  } = req.body;
+
+  // Vérifie si tous les paramètres sont renseignés
+  if (
+    !MontreID ||
+    !NomMontres ||
+    !BoitierID ||
+    !PierreID ||
+    !BraceletID ||
+    !TextureBoitierID ||
+    !TextureBraceletID
+  ) {
+    res.status(400).json({
+      error: "Tous les champs sont obligatoires",
+    });
     return;
   }
 
+  // Mettre à jour la montre sans vérifier l'ID de l'utilisateur
   db.run(
-    "INSERT INTO Configurations (MontreID,UserID, PierreID,BraceletID, BoitierID) VALUES (?,?,?,?,?)",
-    [MontreID, BoitierID, UserID, PierreID, BraceletID],
-    function (err) {
+    `UPDATE Montres
+     SET NomMontres = ?, BoitierID = ?, PierreID = ?, BraceletID = ?, TextureBoitierID = ?, TextureBraceletID = ?
+     WHERE MontreID = ?`,
+    [
+      NomMontres,
+      BoitierID,
+      PierreID,
+      BraceletID,
+      TextureBoitierID,
+      TextureBraceletID,
+      MontreID,
+    ],
+    (err) => {
       if (err) {
-        console.error("Error adding Bracelet:", err.message);
-        res.status(500).json({ error: "Internal server error" });
+        res.status(500).json({ error: "Erreur interne du serveur" });
         return;
       }
-      res.json({
-        ConfigurationID: this.lastID,
-        MontreID,
-        BoitierID,
-        UserID,
-        PierreID,
-        BraceletID,
-      });
+      res.json({ message: "La montre a été modifiée avec succès." });
     }
   );
 });
 
-// -------------app.put  et undapte into ---------------------------//
+// modification montre by id avec  id user (hypotese)
+app.put("/montre/user/:MontreID/update", (req, res) => {
+  const { MontreID } = req.params;
+  const UserID = req.user.UserID; 
+  const {
+    NomMontres,
+    BoitierID,
+    PierreID,
+    BraceletID,
+    TextureBoitierID,
+    TextureBraceletID,
+  } = req.body;
+
+  // Vérifie si tous les paramètres sont renseignés
+  if (
+    !MontreID ||
+    !NomMontres ||
+    !BoitierID ||
+    !PierreID ||
+    !BraceletID ||
+    !TextureBoitierID ||
+    !TextureBraceletID
+  ) {
+    res.status(400).json({
+      error: "Tous les champs sont obligatoires",
+    });
+    return;
+  }
+
+  db.all(
+    `SELECT *
+     FROM Montres m
+     JOIN user u ON m.UserID = u.UserID
+     WHERE m.MontreID = ?
+     AND u.UserID = ?`,
+    [MontreID, UserID],
+    (err, rows) => {
+      if (err) {
+        res.status(500).json({ error: "Erreur interne du serveur" });
+        return;
+      }
+
+      if (rows.length > 0) {
+        // Si la montre existe, mettre à jour ses informations
+        db.run(
+          `UPDATE Montres
+           SET NomMontres = ?, BoitierID = ?, PierreID = ?, BraceletID = ?, TextureBoitierID = ?, TextureBraceletID = ?
+           WHERE MontreID = ?`,
+          [
+            NomMontres,
+            BoitierID,
+            PierreID,
+            BraceletID,
+            TextureBoitierID,
+            TextureBraceletID,
+            MontreID,
+          ],
+          (err) => {
+            if (err) {
+              res.status(500).json({ error: "Erreur interne du serveur" });
+              return;
+            }
+            res.json({ message: "La montre a été modifiée avec succès." });
+          }
+        );
+      } else {
+        res
+          .status(404)
+          .json({
+            message: "Montre non trouvée ou n'appartient pas à l'utilisateur",
+          });
+      }
+    }
+  );
+});
+
+
+
 // Start the server
 
 app.listen(port, () => {
