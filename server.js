@@ -31,15 +31,39 @@ app.get("/", (req, res) => {
 
 //Get all
 app.get("/montres", (req, res) => {
-  db.all("SELECT * FROM Montres", (err, rows) => {
-    if (err) {
-      console.error("Error fetching montres:", err.message);
-      res.status(500).json({ error: "Internal server error" });
-      return;
+  db.all(
+    `SELECT
+      m.MontreID,
+      m.NomMontres,
+      u.name as UserName,
+      b.NomBoitier,
+      b.Prix as PrixBoitier,
+      p.NomPierre,
+      p.Prix as PrixPierre,
+      br.NomBracelet,
+      br.Prix as PrixBracelet,
+      tb.NomTexture as TextureBoitier,
+      tb.Prix as PrixTextureBoitier,
+      tbr.NomTexture as TextureBracelet,
+      tbr.Prix as PrixTextureBracelet
+    FROM Montres m
+    LEFT JOIN user u ON m.UserID = u.UserID
+    LEFT JOIN Boitier b ON m.BoitierID = b.BoitierID
+    LEFT JOIN Pierres p ON m.PierreID = p.PierreID
+    LEFT JOIN Bracelet br ON m.BraceletID = br.BraceletID
+    LEFT JOIN TextureBoitier tb ON m.TextureBoitierID = tb.TextureBoitierID
+    LEFT JOIN TextureBracelet tbr ON m.TextureBraceletID = tbr.TextureBraceletID`,
+    (err, rows) => {
+      if (err) {
+        console.error("Error fetching montres:", err.message);
+        res.status(500).json({ error: "Internal server error" });
+        return;
+      }
+      res.json(rows); // Return the list of montres with detailed information as JSON response
     }
-    res.json(rows); // Return the list of montres as JSON response
-  });
+  );
 });
+
 app.get("/user", (req, res) => {
   db.all("SELECT * FROM user", (err, rows) => {
     if (err) {
@@ -111,28 +135,39 @@ app.get("/montre/:MontreID", (req, res) => {
 
   db.all(
     `SELECT
-      MontreID,
-      NomMontres,
-      UserID,
-      BoitierID,
-      PierreID,
-      BraceletID,
-      TextureBraceletID,
-      TextureBoitierID
-
-      FROM Montres
-      WHERE MontreID = ?;`,
+      m.MontreID,
+      m.NomMontres,
+      u.name as UserName,
+      b.NomBoitier,
+      b.Prix as PrixBoitier,
+      p.NomPierre,
+      p.Prix as PrixPierre,
+      br.NomBracelet,
+      br.Prix as PrixBracelet,
+      tb.NomTexture as TextureBoitier,
+      tb.Prix as PrixTextureBoitier,
+      tb.NomTexture as TextureBracelet,
+      tb.Prix as PrixTextureBracelet
+    FROM Montres m
+    LEFT JOIN user u ON m.UserID = u.UserID
+    LEFT JOIN Boitier b ON m.BoitierID = b.BoitierID
+    LEFT JOIN Pierres p ON m.PierreID = p.PierreID
+    LEFT JOIN Bracelet br ON m.BraceletID = br.BraceletID
+    LEFT JOIN TextureBoitier tb ON m.TextureBoitierID = tb.TextureBoitierID
+    LEFT JOIN TextureBracelet tbr ON m.TextureBraceletID = tbr.TextureBraceletID
+    WHERE m.MontreID = ?;`,
     [MontreID],
     (err, rows) => {
       if (err) {
-        console.error("Error fetching watches:", err.message);
+        console.error("Error fetching watch:", err.message);
         res.status(500).json({ error: "Internal server error" });
         return;
       }
-      res.json(rows); // Return the list of recipes as JSON response
+      res.json(rows); // Return the watch details as JSON response
     }
   );
 });
+
 
 // -------------inscription---------------------------//
 
@@ -375,7 +410,7 @@ app.post("/TextureBoitier/add", (req, res) => {
 });
 
 
-// -------------app.put  et undapte into ---------------------------//
+// -------------put ---------------------------//
 
 
 // modification montre 
@@ -505,6 +540,8 @@ app.put("/montre/user/:MontreID/update", (req, res) => {
     }
   );
 });
+
+// -------------Delete----------------//
 
 
 
