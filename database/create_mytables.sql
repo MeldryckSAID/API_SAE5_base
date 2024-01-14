@@ -1,76 +1,66 @@
--- Table Utilisateurs
-CREATE TABLE user (
-    UserID INTEGER PRIMARY KEY,
-    name VARCHAR(255) UNIQUE NOT NULL,
-    Password VARCHAR(255) NOT NULL,
-    surname VARCHAR(255)  NOT NULL,
-    mail VARCHAR(255) UNIQUE NOT NULL
-);
--- Table Montres
-CREATE TABLE Montres (
-    MontreID INTEGER PRIMARY KEY,
-    NomMontres VARCHAR(255) NOT NULL,
-    UserID INTEGER,
-    BoitierID INTEGER,
-    PierreID INTEGER,
-    BraceletID INTEGER,
-    TextureBoitierID INTEGER,
-    TextureBraceletID INTEGER,
-    FOREIGN KEY (UserID) REFERENCES user(UserID),
-    FOREIGN KEY (PierreID) REFERENCES Pierre(PierreID),
-    FOREIGN KEY (BraceletID) REFERENCES Bracelet(BraceletID),
-    FOREIGN KEY (TextureBoitierID) REFERENCES TextureBoitier(TextureBoitierID),
-    FOREIGN KEY (TextureBraceletID) REFERENCES TextureBracelet(TextureBraceletID),
-    FOREIGN KEY (BoitierID) REFERENCES Boitier(BoitierID)
-    
+
+CREATE TABLE Boitier_Texture (
+    boitierTextureID INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+    nom TEXT,
+    prix DECIMAL(5,2)
 );
 
--- Table Boitier
-CREATE TABLE Boitier (
-    BoitierID INTEGER PRIMARY KEY,
-    NomBoitier VARCHAR(255) UNIQUE NOT NULL,
-    Prix DECIMAL(10, 2) NOT NULL,
-    TextureBoitierID INTEGER,
-    FOREIGN KEY (TextureBoitierID) REFERENCES TextureBoitier(TextureBoitierID)
-);
--- Table TextureBoitier
-CREATE TABLE TextureBoitier (
-    TextureBoitierID INTEGER PRIMARY KEY,
-    NomTexture VARCHAR(255) UNIQUE NOT NULL,
-    Prix DECIMAL(10, 2) NOT NULL
-    
+--Table boitier
+CREATE TABLE Boitier_Forme (
+    boitierFormeID INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+    nom TEXT,
+    prix DECIMAL(5,2)
 );
 
--- Table Pierre
-CREATE TABLE Pierres (
-    PierreID INTEGER PRIMARY KEY,
-    NomPierre VARCHAR(255) UNIQUE NOT NULL,
-    PierreDescription VARCHAR(255) NOT NULL,
-    Prix DECIMAL(10, 2) NOT NULL
-);
--- Table Bracelet
-CREATE TABLE Bracelet (
-    BraceletID INTEGER PRIMARY KEY,
-    NomBracelet VARCHAR(255) UNIQUE NOT NULL,
-    Prix DECIMAL(10, 2) NOT NULL
-   
-
+--Table bracelet
+CREATE TABLE Bracelet_Texture(
+    braceletTextureID INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+    nom TEXT,
+    prix DECIMAL(5,2)
 );
 
--- Table TextureBracelet
-CREATE TABLE TextureBracelet (
-    TextureBraceletID INTEGER PRIMARY KEY,
-    NomTexture VARCHAR(255) UNIQUE NOT NULL,
-    TextureDescription VARCHAR(255) NOT NULL,
-    Prix DECIMAL(10, 2) NOT NULL
-   
+
+--Table pierre
+CREATE TABLE Pierre (
+    pierreID INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+    nom TEXT,
+    prix DECIMAL(5,2),
+    couleur TEXT
 );
 
--- Table Panier
-CREATE TABLE cart (
-    cartID INTEGER PRIMARY KEY,
-    UserID INTEGER,
-    MontreID INTEGER,
-    FOREIGN KEY (UserID) REFERENCES user(UserID),
-    FOREIGN KEY (MontreID) REFERENCES Montres(MontreID) 
+
+--Table utilisateurs
+CREATE TABLE User (
+    userID INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+    pseudo TEXT UNIQUE,
+    mdp TEXT
+);
+
+
+--Table montres
+CREATE TABLE Montre (
+    montreID INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, 
+    nom TEXT UNIQUE,
+    pierreID INT,
+    braceletTextureID INT,
+    boitierTextureID INT,
+    boitierFormeID INT,
+    main_color TEXT,
+    userID INTEGER,
+    FOREIGN KEY (pierreID) REFERENCES Pierre(pierreID),
+    FOREIGN KEY (braceletTextureID) REFERENCES Bracelet_Texture(braceletTextureID),
+    FOREIGN KEY (boitierTextureID) REFERENCES Boitier_Texture(boitierTextureID),
+    FOREIGN KEY (boitierFormeID) REFERENCES Boitier_Forme(boitierFormeID),
+    FOREIGN KEY (userID) REFERENCES User(userID)
+);
+
+
+
+--Table panier
+CREATE TABLE Panier (
+    userID INT,
+    montreID INT,
+    PRIMARY KEY (userID, montreID),
+    FOREIGN KEY (userID) REFERENCES User(userID),
+    FOREIGN KEY (montreID) REFERENCES Montre(montreID)
 );
