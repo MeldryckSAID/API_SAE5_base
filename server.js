@@ -14,7 +14,7 @@ app.use(bodyParser.json());
 // Middleware for parsing JSON requests
 
 // Connect to your SQLite database
-const db = new sqlite3.Database("../database/sae501-bdd.bd", (err) => {
+const db = new sqlite3.Database("./database/montresmyDB.db", (err) => {
   if (err) {
     console.error("Error connecting to the database:", err.message);
   } else {
